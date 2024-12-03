@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보안 게시판</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        #password-form, #board-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="password"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button, .write-btn, input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover, .write-btn:hover, input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .notice { color: #ff6b6b; }
+        .question { color: #4ecdc4; }
+        .general { color: #45b7d1; }
+        .event { color: #f7b731; }
+        #write-form {
+            margin-top: 30px;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input[type="file"] {
+            margin-top: 5px;
+        }
+        .post-item {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .post-item:hover {
+            background-color: #f0f0f0;
+        }
+        #post-detail {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="password-form">
+            <h1>보안 게시판</h1>
+            <input type="password" id="password" placeholder="패스워드를 입력하세요">
+            <button onclick="checkPassword()">입력</button>
+        </div>
+
+        <div id="board-content" style="display:none;">
+            <h2>게시판</h2>
+            <table id="post-list">
+                <thead>
+                    <tr>
+                        <th>유형</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>날짜</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 기존 게시글은 여기에 추가됩니다 -->
+                </tbody>
+            </table>
+            
+            <div id="post-detail"></div>
+            
+            <div id="write-form">
+                <h2>글 작성</h2>
+                <form id="post-form" onsubmit="return addPost(event)">
+                    <label for="post-type">유형:</label>
+                    <select id="post-type" name="post-type" required>
+                        <option value="notice">공지</option>
+                        <option value="question">질문</option>
+                        <option value="general">일반</option>
+                        <option value="event">이벤트</option>
+                    </select>
+
+                    <label for="title">제목:</label>
+                    <input type="text" id="title" name="title" required>
+
+                    <label for="content">내용:</label>
+                    <textarea id="content" name="content" required></textarea>
+
+                    <label for="image">이미지 업로드:</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+
+                    <label for="video">동영상 업로드:</label>
+                    <input type="file" id="video" name="video" accept="video/*">
+
+                    <input type="submit" value="게시하기">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            var password = document.getElementById("password").value;
+            if (password === "DOLLRATH") {
+                document.getElementById("password-form").style.display = "none";
+                document.getElementById("board-content").style.display = "block";
+            } else {
+                alert("잘못된 패스워드입니다.");
+            }
+        }
+
+        function addPost(event) {
+            event.preventDefault();
+            var type = document.getElementById("post-type").value;
+            var title = document.getElementById("title").value;
+            var content = document.getElementById("content").value;
+            var date = new Date().toISOString().split('T')[0];
+
+            var iconClass = {
+                'notice': 'fas fa-exclamation-circle notice',
+                'question': 'fas fa-question-circle question',
+                'general': 'fas fa-comment general',
+                'event': 'fas fa-calendar-alt event'
+            };
+
+            var newRow = document.createElement('tr');
+            newRow.className = 'post-item';
+            newRow.innerHTML = `
+                <td><i class="icon ${iconClass[type]}"></i></td>
+                <td>${title}</td>
+                <td>작성자</td>
+                <td>${date}</td>
+            `;
+            newRow.onclick = function() { showPostDetail(title, content); };
+
+            document.querySelector("#post-list tbody").appendChild(newRow);
+            document.getElementById("post-form").reset();
+            return false;
+        }
+
+        function showPostDetail(title, content) {
+            var detailDiv = document.getElementById("post-detail");
+            detailDiv.innerHTML = `<h3>${title}</h3><p>${content}</p>`;
+            detailDiv.style.display = 'block';
+        }
+
+        // 기존 게시글에 클릭 이벤트 추가
+        document.querySelectorAll('.post-item').forEach(item => {
+            item.onclick = function() {
+                var title = this.querySelector('td:nth-child(2)').textContent;
+                var content = "이 게시글의 내용입니다."; // 실제로는 서버에서 내용을 가져와야 합니다
+                showPostDetail(title, content);
+            };
+        });
+    </script>
+</body>
+</html>
